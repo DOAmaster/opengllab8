@@ -1,5 +1,5 @@
 //modified by: Derrick Alden
-//date:
+//fonts commented out until VM compile issue is solved on my home machine
 //
 //3480 Computer Graphics
 //lab8.cpp
@@ -165,7 +165,7 @@ void init_opengl()
 	//glClear(GL_COLOR_BUFFER_BIT);
 	//Do this to allow fonts
 	glEnable(GL_TEXTURE_2D);
-	initialize_fonts();
+//	initialize_fonts();
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
@@ -200,6 +200,9 @@ int check_keys(XEvent *e)
 				//triangle fan
 				g.mode = 6;
 				break;
+			case XK_7:
+				g.mode = 7;
+				break;
 			case XK_minus:
 				if (--g.npoints < 5)
 					g.npoints = 5;
@@ -231,6 +234,7 @@ void physics()
 
 }
 
+/*
 void showMenu()
 {
 	Rect r;
@@ -249,6 +253,7 @@ void showMenu()
 	ggprint8b(&r, 16, color, "5 - Triangle-strip circle");
 	ggprint8b(&r, 16, color, "6 - Triangle-fan circle");
 }
+*/
 
 //mode 1
 void showPointsOnACircle()
@@ -338,6 +343,9 @@ void triangleFan()
 void triangleStrip()
 {
 
+	float angle = 0.0;
+	float inc = PI * 2.0 / (float)g.npoints;
+
 	glColor3ub(255,255,90);
 	glBegin(GL_TRIANGLE_STRIP);
 	glTranslatef(g.center.x, g.center.y, 0.0);
@@ -346,6 +354,47 @@ void triangleStrip()
 
 	for (int i =0; i < g.npoints; i++) {    	
 		glVertex3f(g.center.x +g.point[i].x, g.center.y+g.point[i].y, 0.0);
+	}
+	
+	glEnd();
+	glPopMatrix();
+
+
+}
+
+
+void triangleStripRing()
+{
+
+
+	float angle = 0.0;
+	float inc = PI * 2.0 / (float)g.npoints;
+
+	//define x and y using cos and sin
+	for (int i=0; i<g.npoints; i++) {
+		g.point[i].x = cos(angle) * g.radius;
+		g.point[i].y = sin(angle) * g.radius;
+		angle += inc;
+	}
+
+
+	//define x and y using cos and sin smalle radius
+	for (int i=0; i<g.npoints; i++) {
+		g.point[i+ g.npoints].x = cos(angle) * g.radius - 100;
+		g.point[i+ g.npoints].y = sin(angle) * g.radius - 100;
+		angle += inc;
+	}
+
+	glColor3ub(255,255,90);
+	glBegin(GL_TRIANGLE_STRIP);
+	glTranslatef(g.center.x, g.center.y, 0.0);
+
+	glFrontFace(GL_CW);
+
+	int i = 0;
+	for (i = 0; i < g.npoints; i++) {    	
+		glVertex3f(g.center.x +g.point[i].x, g.center.y+g.point[i].y, 0.0);
+		glVertex3f(g.center.x +g.point[i+g.npoints].x, g.center.y+g.point[i+g.npoints].y, 0.0);
 	}
 	
 	glEnd();
@@ -404,7 +453,7 @@ void rotationMatrix()
 void render()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
-	showMenu();
+//	showMenu();
 	switch (g.mode) {
 		case 1:
 			glColor3ub(30,60,90);
@@ -423,7 +472,9 @@ void render()
 			break;
 		case 6:
 			triangleFan();
-
+			break;
+		case 7:
+			triangleStripRing();
 			break;
 		default:
 			break;
